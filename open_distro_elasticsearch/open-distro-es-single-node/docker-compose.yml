@@ -1,0 +1,51 @@
+version: '3'
+services:
+  odfe-node1:
+    build: ./es
+    container_name: odfe-node1
+    environment:
+      - cluster.name=open-distro-es-single-node
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
+      - indices.fielddata.cache.size=60%
+      - network.host=0.0.0.0
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m' # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
+        hard: 65536
+    volumes:
+      - esdata-single:/usr/share/elasticsearch/data
+      # - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      # - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+    # - ./es/config/jvm.options:/usr/share/elasticsearch/config/jvm.options
+    ports:
+      - 9200:9200
+      - 9600:9600 # required for Performance Analyzer
+    networks:
+      - esnet-single
+
+  kibana:
+    build: ./kibana
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_URL: https://odfe-node1:9200
+      ELASTICSEARCH_HOST: https://odfe-node1:9200
+    volumes:
+    # https://stackoverflow.com/questions/62072910/kibana-opendistro-cant-connect-to-elasticsearch-open-distro-container-on-docker
+      - ./kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    expose:
+      - '5601'
+    networks:
+      - esnet-single
+
+volumes:
+  esdata-single:
+
+networks:
+  esnet-single:

@@ -1,0 +1,37 @@
+version: "3"
+services:
+  elasticsearch:
+    build: ./es
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
+        hard: 65536
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana:
+    image: kibana:7.9.1
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+  jupyter:
+    image: jupyter/minimal-notebook:latest
+    # password is password
+    command: start-notebook.sh --NotebookApp.password='sha1:bdb57a948a9c:3703db713446c3915f81c1253d3d5af136c9ba93'
+    volumes:
+      - ./notebook/perf-test.ipynb:/home/jovyan/work/perf-test.ipynb
+    ports:
+      - 8888:8888
+volumes:
+  es-data:

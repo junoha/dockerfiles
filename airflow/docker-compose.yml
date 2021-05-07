@@ -1,0 +1,44 @@
+# https://airflow.apache.org/docs/apache-airflow/stable/production-deployment.html
+# https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html
+# https://github.com/apache/airflow/blob/master/Dockerfile
+# https://towardsdatascience.com/apache-airflow-and-postgresql-with-docker-and-docker-compose-5651766dfa96
+# https://qiita.com/ieiringoo/items/04f73e5557b534dc694d
+
+version: "3.8"
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+  scheduler:
+    image: apache/airflow
+    command: scheduler
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+  webserver:
+    image: apache/airflow
+    entrypoint: ./scripts/entrypoint.sh
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - postgres
+      - scheduler
+    env_file:
+      - .env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./scripts:/opt/airflow/scripts
+    ports:
+      - "8080:8080"

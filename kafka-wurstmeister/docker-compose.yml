@@ -1,0 +1,18 @@
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+  kafka:
+    # https://hub.docker.com/r/wurstmeister/kafka
+    # <scala-version>-<kafka-version>
+    image: wurstmeister/kafka:2.11-1.1.1
+    ports:
+      - "9092"
+    environment:
+      # Docker host's hostname or IP address
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

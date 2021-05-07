@@ -1,0 +1,18 @@
+#http.host: 0.0.0.0
+network.host: 0.0.0.0
+
+bootstrap.memory_lock: true
+
+# Cluster settings
+cluster.name: open-distro-es-multi-cluster
+discovery.zen.ping.unicast.hosts: ['elasticsearch01', 'elasticsearch02', 'elasticsearch03']
+discovery.zen.minimum_master_nodes: 2
+
+# discovery.zen.ping.unicast.hosts: ['elasticsearch01', 'elasticsearch02', 'elasticsearch03','elasticsearch04','elasticsearch05']
+# discovery.zen.minimum_master_nodes: 3
+
+### x-pack functions
+# xpack.security.enabled: false
+# xpack.monitoring.enabled: true
+# xpack.graph.enabled: true
+# xpack.watcher.enabled: false

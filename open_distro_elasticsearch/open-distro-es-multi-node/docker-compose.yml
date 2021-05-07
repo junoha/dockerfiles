@@ -1,0 +1,164 @@
+version: "3.7"
+services:
+  elasticsearch01:
+    build: ./es
+    container_name: elasticsearch01
+    environment:
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - cluster.name=open-distro-es-multi-cluster
+      - bootstrap.memory_lock=true
+      - discovery.zen.minimum_master_nodes=2
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      # noproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+      # - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+    ports:
+      - 9201:9200
+      - 9601:9600 # required for Performance Analyzer
+    networks:
+      - esnet-multi
+
+  elasticsearch02:
+    build: ./es
+    container_name: elasticsearch02
+    environment:
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - cluster.name=open-distro-es-multi-cluster
+      - bootstrap.memory_lock=true
+      - discovery.zen.minimum_master_nodes=2
+      # - discovery.zen.ping.unicast.hosts=elasticsearch01
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      # noproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    volumes:
+      - esdata02:/usr/share/elasticsearch/data
+      # - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+    ports:
+      - 9202:9200
+      - 9602:9600 # required for Performance Analyzer
+    networks:
+      - esnet-multi
+
+  elasticsearch03:
+    build: ./es
+    container_name: elasticsearch03
+    environment:
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+      - cluster.name=open-distro-es-multi-cluster
+      - bootstrap.memory_lock=true
+      - discovery.zen.minimum_master_nodes=2
+      # - discovery.zen.ping.unicast.hosts=elasticsearch01
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      # noproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    volumes:
+      - esdata03:/usr/share/elasticsearch/data
+      # - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+    ports:
+      - 9203:9200
+      - 9603:9600 # required for Performance Analyzer
+    networks:
+      - esnet-multi
+
+  # elasticsearch04:
+  #   build: ./es
+  #   container_name: elasticsearch04
+  #   environment:
+  #     - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+  #     - cluster.name=open-distro-es-multi-cluster
+  #     - bootstrap.memory_lock=true
+  #     - discovery.zen.minimum_master_nodes=2
+  #     # - discovery.zen.ping.unicast.hosts=elasticsearch01
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #     # noproc: 65535
+  #     nofile:
+  #       soft: 65535
+  #       hard: 65535
+  #   volumes:
+  #     - esdata04:/usr/share/elasticsearch/data
+  #     - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+  #     - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+  #   ports:
+  #     - 9204:9200
+  #     - 9604:9600 # required for Performance Analyzer
+  #   networks:
+  #     - esnet-multi
+
+  # elasticsearch05:
+  #   build: ./es
+  #   container_name: elasticsearch05
+  #   environment:
+  #     - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+  #     - cluster.name=open-distro-es-multi-cluster
+  #     - bootstrap.memory_lock=true
+  #     - discovery.zen.minimum_master_nodes=2
+  #     # - discovery.zen.ping.unicast.hosts=elasticsearch01
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #     # noproc: 65535
+  #     nofile:
+  #       soft: 65535
+  #       hard: 65535
+  #   volumes:
+  #     - esdata05:/usr/share/elasticsearch/data
+  #     - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+  #     - ./es/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+  #   ports:
+  #     - 9205:9200
+  #     - 9605:9600 # required for Performance Analyzer
+  #   networks:
+  #     - esnet-multi
+
+  kibana01:
+    build: ./kibana
+    container_name: kibana01
+    # links:
+    #   - elasticsearch01:elasticsearch
+    environment:
+      ELASTICSEARCH_URL: https://elasticsearch01:9200
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    networks:
+      - esnet-multi
+
+volumes:
+  esdata01:
+    driver: local
+  esdata02:
+    driver: local
+  esdata03:
+    driver: local
+  # esdata04:
+  #   driver: local
+  # esdata05:
+  #   driver: local
+
+networks:
+  esnet-multi:
